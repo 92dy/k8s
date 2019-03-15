@@ -29,17 +29,18 @@
 dashboard-admin                      1         101s
 ```
 
-- 将 **Serviceaccount** 账户与集群进行 `clusterrolebinding`
+- 根据其管理目标（这里管理整个集群），使用`clusterbinding`或者`rolebinding` 将**Serviceaccount** 账户与合理`role`（clusterrole）进行绑定
 ```
 [root@k8s-master ~]# kubectl  create clusterrolebinding dashboard-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
 clusterrolebinding.rbac.authorization.k8s.io/dashboard-cluster-admin created
 ```
 
-- 获取对应的 serviceaccount 的secret 信息，并且通过这个secret 访问集群
+- 获取对此的 `Serviceaccount` 的`Secret`详细信息，其中就有`token`
 ```
 // dashboard-admin 的 secret 信息
 [root@k8s-master ~]# kubectl get secret -n kube-system|grep --color dashboard-admin
 dashboard-admin-token-xtp9d                      kubernetes.io/service-account-token   3      14m
+[root@k8s-master ~]# kubectl  describe secret dashboard-admin-token-xtp9d -n kube-system
 ```
 ![](./images/ins_6.png)
 
@@ -48,7 +49,7 @@ dashboard-admin-token-xtp9d                      kubernetes.io/service-account-t
 ![](./images/ins_7.png)
 ![](./images/ins_8.png)
 
-## 使用 `KubeConfig` 认证
+## 使用 `KubeConfig` 认证--把Serviceaccount的token封装为kubeconfig文件
 
 - 创建一个 **Serviceaccount** 账户：`def-ns-admin`
 ```
